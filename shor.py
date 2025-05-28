@@ -1,8 +1,4 @@
-
-# !pip install -U qiskit-aer
-# !pip install -U pylatexenc
-# !pip install -U qiskit-ibm-runtime
-# !pip install -U qiskit
+# -*- coding: utf-8 -*-
 import sympy
 import numpy as np
 from numpy import pi
@@ -15,6 +11,10 @@ from qiskit_ibm_runtime import QiskitRuntimeService, SamplerV2 as Sampler, IBMBa
 from factorising_functions import *
 
 def orderFindingCircuit(N:int, a:int, backend, show_circuit: bool = False, transpileCirc: bool = False, optimization: int = 2) -> QuantumCircuit:
+  """
+  Returns the circuit for the order-finding subroutine. The size will depend on the parameter N. which is the number to factorise. It is difficult to transpile
+  at this moment due to the inefficiency of the exponentiation gate, especially noticable when scaling the problem's input size. 
+  """
   n = int(np.ceil(np.log2(N)))
   estimation = QuantumRegister(2 * n, name = "estimation")
   state = QuantumRegister(n, name="state")
@@ -25,7 +25,7 @@ def orderFindingCircuit(N:int, a:int, backend, show_circuit: bool = False, trans
   circ.x(state[0])
   for i in range(2*n):
     circ.append(AExpXModNControlled(a, i, N),  state[:] + [estimation[i]])
-  circ.barrier();
+  circ.barrier()
   circ.append(iqft(2*n), estimation[:])
   circ.measure(estimation, creg)
 
@@ -35,7 +35,10 @@ def orderFindingCircuit(N:int, a:int, backend, show_circuit: bool = False, trans
     circ = transpile(circ, backend, optimization_level=optimization)
   return circ
 
-def orderFinding(N:int, a:int, backend: IBMBackend, shot_treshold: int = 80, show_circuit: bool = False, show_results: bool = True, simulation: bool = True) -> int:
+def orderFinding(N:int, a:int, backend, shot_treshold: int = 80, show_circuit: bool = False, show_results: bool = True, simulation: bool = True) -> int:
+  """
+  Computes the order-finding subroutine. A beckend for it to run with the qiskit framework must be passed if simulation is False. 
+  """
   print(f"N: {N}, a: {a}")
   n = int(np.ceil(np.log2(N)))
   estimation = QuantumRegister(2 * n, name = "estimation")
@@ -89,7 +92,10 @@ def orderFinding(N:int, a:int, backend: IBMBackend, shot_treshold: int = 80, sho
 import random
 import time
 
-def shorAlgorithm(N: int, excluded: list, backend: IBMBackend, simulation : bool = True) -> list:
+def shorAlgorithm(N: int, excluded: list, backend, simulation : bool = True) -> list:
+  """
+  Runs Shor's algorithm for the number to decompose N. A backend compatible with Qiskit framwork must be passed if the simulation parameter is False. 
+  """
   random.seed(time.time())
   factors = []
   found = False

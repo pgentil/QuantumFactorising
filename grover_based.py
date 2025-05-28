@@ -1,10 +1,4 @@
 # -*- coding: utf-8 -*-
-
-# !pip install -U qiskit-aer
-# !pip install -U pylatexenc
-# !pip install -U qiskit-ibm-runtime
-# !pip install -U qiskit
-
 """## Factorising with Grover's search algorithm
 
 This is the article where this algorithm was taken from

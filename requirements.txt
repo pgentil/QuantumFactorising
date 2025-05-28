@@ -1,0 +1,6 @@
+qiskit-aer
+pylatexenc
+qiskit-ibm-runtime
+qiskit
+numpy
+sympy

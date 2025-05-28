@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
 import sympy
 import numpy as np
 from numpy import pi
 from qiskit import QuantumCircuit, QuantumRegister, transpile, ClassicalRegister
 from qiskit_aer import Aer
 from qiskit.visualization import plot_histogram
-from qiskit.circuit.library import UnitaryGate
+from qiskit.circuit.library import UnitaryGate, PhaseGate, CPhaseGate, ZGate
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 from qiskit_ibm_runtime import QiskitRuntimeService, SamplerV2 as Sampler, IBMBackend
 
@@ -44,6 +45,7 @@ def numberToCircuit(n: int, nbits: int) -> QuantumCircuit:
 
 
 def qft(n: int, swaps: bool = True) -> QuantumCircuit:
+  """QFT"""
   circuit = QuantumCircuit(n, name="QFT")
   PIx2 = 2 * pi
   for i in range(n - 1, -1, -1):
@@ -58,23 +60,9 @@ def qft(n: int, swaps: bool = True) -> QuantumCircuit:
         circuit.swap(i, n - i - 1)
   return circuit
 
-def qftC(n: int, swaps: bool = True, constant: int = 1) -> QuantumCircuit:
-  circuit = QuantumCircuit(n, name="QFT")
-  PIx2 = 2 * pi
-  for i in range(n - 1, -1, -1):
-    circuit.h(i)
-    for j in range(0, i):
-      circuit.cp((PIx2 / (2**(1 + i - j))), j, i)
-    circuit.p((constant - 1)) * pi
-  circuit.barrier()
-  upper = n//2
-  if (swaps):
-    for i in range(upper):
-      if (i != n - i - 1):
-        circuit.swap(i, n - i - 1)
-  return circuit
 
 def iqft(n: int, swaps: bool = True) -> QuantumCircuit:
+  """Inverse QFT"""
   circuit = QuantumCircuit(n, name="IQFT")
   upper = n//2
   if (swaps):
@@ -92,6 +80,7 @@ def iqft(n: int, swaps: bool = True) -> QuantumCircuit:
   return circuit
 
 def aqft(n: int, max_rot: int, swaps: bool = True) -> QuantumCircuit:
+  """Approximate QFT (with maximum number of rotations)"""
   circuit = QuantumCircuit(n, name="AQFT")
   PIx2 = 2 * pi
   for i in range(n - 1, -1, -1):
@@ -228,8 +217,6 @@ def AExpXModNControlled(a: int, x: int, N: int) -> QuantumCircuit:
 
   return circ
 
-circ = AExpXModNControlled(2, 0, 15)
-#display(circ.decompose().draw(output="mpl", reverse_bits=True))
 
 def controlledAddAndScale2(na: int, c: int) -> QuantumCircuit:
   """
@@ -414,7 +401,7 @@ def diff(n : int) -> QuantumCircuit:
 
 def diffZ(nz: int) -> QuantumCircuit:
   """
-  Other way (less eficient) of implementing the oracle for the factorising algorithm.
+  Other way (less efficient) of implementing the oracle for the factorising algorithm.
   """
   circ = QuantumCircuit(nz)
   circ.append(qft(nz, swaps=False).inverse(), [i for i in range(nz)])
